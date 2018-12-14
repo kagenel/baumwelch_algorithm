@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import copy
-from foward_algorithm import FowardAlgorithm
-from backward_algorithm import BackwardAlgorithm
+from fowardalg import FowardAlgorithm
+from backwardalg import BackwardAlgorithm
+
 
 class BaumwelchAlgorithm():
     def __init__(self):
@@ -11,10 +12,12 @@ class BaumwelchAlgorithm():
         self.c = 3
         self.m = 2
         self.row = [1.0, 0.0, 0.0]
-        self.A = np.asarray([[0.15, 0.60, 0.25], [0.25, 0.15, 0.60], [0.60, 0.25, 0.15]])
+        self.A = np.asarray([[0.15, 0.60, 0.25], [0.25, 0.15, 0.60],
+                             [0.60, 0.25, 0.15]])
         self.B = np.asarray([[0.5, 0.5], [0.5, 0.5], [0.5, 0.5]])
         self.Rrow = [0.0, 0.0, 0.0]
-        self.Aa = np.asarray([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+        self.Aa = np.asarray([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0],
+                              [0.0, 0.0, 0.0]])
         self.Bb = np.asarray([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]])
         self.s = [1, 2, 0]
         self.x = [0, 1, 0]
@@ -44,20 +47,20 @@ class BaumwelchAlgorithm():
             for j in range(self.c):
                 asum = 0
                 for i in range(self.c):
-                    asum += self.alpha[n-1][i] * self.A[i, j]
+                    asum += self.alpha[n - 1][i] * self.A[i, j]
                 self.alpha[n][j] = asum * self.b(j, n)
 
         # STEP 3
         Px = 0
         for i in range(self.c):
-            Px += self.alpha[self.n-1][i]
+            Px += self.alpha[self.n - 1][i]
         print(Px)
         return Px
 
-
     def estimate_HMM(self):
         # STEP 1
-        self.A = np.asarray([[0.15, 0.60, 0.25], [0.25, 0.15, 0.60], [0.60, 0.25, 0.15]])
+        self.A = np.asarray([[0.15, 0.60, 0.25], [0.25, 0.15, 0.60],
+                             [0.60, 0.25, 0.15]])
         self.B = np.asarray([[0.5, 0.5], [0.5, 0.5], [0.5, 0.5]])
         self.row = [1.0, 0.0, 0.0]
 
@@ -72,8 +75,9 @@ class BaumwelchAlgorithm():
                 for j in range(self.c):
                     _xi = 0.0
                     _gamma = 0.0
-                    for t in range(self.n-1):
-                        _xi += _alpha[t][i] * self.A[i, j] * self.b(j, t+1) * _beta[t+1][j]
+                    for t in range(self.n - 1):
+                        _xi += _alpha[t][i] * self.A[i, j] * self.b(
+                            j, t + 1) * _beta[t + 1][j]
                         _gamma += _alpha[t][i] * _beta[t][i]
                     self.Aa[i, j] = _xi / _gamma
 
@@ -89,16 +93,16 @@ class BaumwelchAlgorithm():
             for i in range(self.c):
                 _al = 0.0
                 for j in range(self.c):
-                    _al += _alpha[self.n-1][j]
+                    _al += _alpha[self.n - 1][j]
                 self.Rrow[i] = (_alpha[0][i] * _beta[0][i]) / _al
 
             # STEP 3
             self.A = copy.copy(self.Aa)
-            self.B = copy.copy(self.Bb)   
-            self.row = copy.copy(self.Rrow)   
+            self.B = copy.copy(self.Bb)
+            self.row = copy.copy(self.Rrow)
 
             print(self.B)
-            
+
             # _Px = np.log(self.calc_Px())
             # if np.abs(_Px) < 0.001:
             #     print(_Px)
@@ -106,6 +110,7 @@ class BaumwelchAlgorithm():
 
     def main(self):
         self.estimate_HMM()
+
 
 if __name__ == '__main__':
     bm = BaumwelchAlgorithm()
