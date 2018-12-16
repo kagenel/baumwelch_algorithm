@@ -9,7 +9,7 @@ class BackwardAlgorithm():
         self.B = np.zeros(1)
         self.row = []
         self.x_list = []
-        self.c = B.shape[1]  # 状態数
+        self.c = 0  # 状態数
         self.n = len(self.x_list)  # 観測回数
         self.beta = [[0 for i in range(self.c)] for j in range(self.n)]
         self.Px = 0.0
