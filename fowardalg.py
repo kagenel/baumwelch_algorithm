@@ -14,7 +14,7 @@ class FowardAlgorithm():
         self.alpha = [[0 for i in range(self.c)] for j in range(self.n)]
         self.Px = 0.0
 
-    def set(self, A, B, r, x_list):
+    def __init__(self, A, B, r, x_list):
         self.A = A
         self.B = B
         self.row = r
@@ -22,6 +22,7 @@ class FowardAlgorithm():
         self.c = B.shape[0]  # 状態数
         self.n = len(x_list)  # 観測回数
         self.alpha = [[0 for i in range(self.c)] for j in range(self.n)]
+        self.Px = 0.0
 
     def b(self, w, x):
         return self.B[w, self.x_list[x]]

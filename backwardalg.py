@@ -14,7 +14,7 @@ class BackwardAlgorithm():
         self.beta = [[0 for i in range(self.c)] for j in range(self.n)]
         self.Px = 0.0
 
-    def set(self, A, B, r, x_list):
+    def __init__(self, A, B, r, x_list):
         self.A = A
         self.B = B
         self.row = r
@@ -22,11 +22,16 @@ class BackwardAlgorithm():
         self.c = B.shape[0]  # 状態数
         self.n = len(x_list)  # 観測回数
         self.beta = [[0 for i in range(self.c)] for j in range(self.n)]
+        self.Px = 0.0
 
     def b(self, w, x):
         return self.B[w, self.x_list[x]]
 
     def calc_Px(self):
+        self.A = np.asarray([[0.15, 0.60, 0.25], [0.25, 0.15, 0.60],
+                             [0.60, 0.25, 0.15]])
+        self.B = np.asarray([[0.5, 0.5], [0.5, 0.5], [0.5, 0.5]])
+        self.rho = [1.0, 0.0, 0.0]
         # STEP 1
         for i in range(self.c):
             self.beta[self.n - 1][i] = 1
@@ -56,4 +61,5 @@ if __name__ == '__main__':
     bw = BackwardAlgorithm()
     bw.set(A, B, row, x)
     bw.calc_Px()
+    print(bw.beta)
     print(bw.Px)
