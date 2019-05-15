@@ -174,17 +174,24 @@ if __name__ == '__main__':
     dice_B = np.array([[0.9, 0.1], [0.6, 0.4], [0.1, 0.9]])
     dice_rho = np.array([1.0, 0.0, 0.0])
     bm.set_output_symbole(dice_A, dice_B, dice_rho, 10000)
-    bm.estimate_HMM_scale(150)
+    bm.estimate_HMM_scale(100)
 
     # [4] 識別実験
     print("[4] 識別実験")
+    A2 = np.asarray([[0.6, 0.25, 0.15], 
+                             [0.15, 0.60, 0.25],
+                             [0.25, 0.15, 0.60]])
+    B2 = np.asarray([[0.5, 0.5], 
+                             [0.5, 0.5],
+                             [0.5, 0.5]])
+    rho2 = [1.0, 0.0, 0.0]
     # ダイス2(クラス2)の測定
     dice2_A = np.array([[0.7, 0.2, 0.1], [0.1, 0.7, 0.2], [0.2, 0.1, 0.7]])
     dice2_B = np.array([[0.9, 0.1], [0.6, 0.4], [0.1, 0.9]])
     dice2_rho = np.array([1.0, 0.0, 0.0])
-    bm2 = BaumwelchAlgorithm(A, B, rho)
+    bm2 = BaumwelchAlgorithm(A2, B2, rho2)
     bm2.set_output_symbole(dice2_A, dice2_B, dice2_rho, 10000)
-    bm2.estimate_HMM_scale(1500)
+    bm2.estimate_HMM_scale(100)
 
     # 識別テスト
 
@@ -195,11 +202,11 @@ if __name__ == '__main__':
         test_x, test_s = dice.generate_symbol(100)
 
         fw1 = FowardAlgorithm(bm.A, bm.B, bm.rho, test_x)
-        fw1.calc_Px_scale()
+        fw1.calc_Px()
         print("W1: {}".format(np.log(fw1.Px)))
 
         fw2 = FowardAlgorithm(bm2.A, bm2.B, bm2.rho, test_x)
-        fw2.calc_Px_scale()
+        fw2.calc_Px()
         print("W2: {}".format(np.log(fw2.Px)))
         
         if np.log(fw1.Px) > np.log(fw2.Px):
@@ -209,6 +216,26 @@ if __name__ == '__main__':
             print("Judgment: W2")
             count += 1
 
+    # W2
+    for i in range(100):
+        dice = OutputSymbol(dice2_A, dice2_B, dice2_rho)
+        test_x, test_s = dice.generate_symbol(100)
+
+        fw1 = FowardAlgorithm(bm.A, bm.B, bm.rho, test_x)
+        fw1.calc_Px()
+        print("W1: {}".format(np.log(fw1.Px)))
+
+        fw2 = FowardAlgorithm(bm2.A, bm2.B, bm2.rho, test_x)
+        fw2.calc_Px()
+        print("W2: {}".format(np.log(fw2.Px)))
+        
+        if np.log(fw1.Px) > np.log(fw2.Px):
+            print("Judgment: W1")
+            count += 1
+            
+        if np.log(fw1.Px) < np.log(fw2.Px):
+            print("Judgment: W2")
+
     # 識別率
     print("================")
-    print("識別率: {}%".format((100 - count)/100 * 100))
+    print("識別率: {}%".format((200 - count)/200 * 100))
