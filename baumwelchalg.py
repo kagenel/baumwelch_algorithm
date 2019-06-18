@@ -8,6 +8,7 @@
 import numpy as np
 import copy
 from fowardalg import FowardAlgorithm
+from viterbialg import ViterbiAlgorithm
 from backwardalg import BackwardAlgorithm
 from outputSymbol import OutputSymbol
 
@@ -173,7 +174,7 @@ if __name__ == '__main__':
     dice_A = np.array([[0.1, 0.7, 0.2], [0.2, 0.1, 0.7], [0.7, 0.2, 0.1]])
     dice_B = np.array([[0.9, 0.1], [0.6, 0.4], [0.1, 0.9]])
     dice_rho = np.array([1.0, 0.0, 0.0])
-    bm.set_output_symbole(dice_A, dice_B, dice_rho, 10000)
+    bm.set_output_symbole(dice_A, dice_B, dice_rho, 1000)
     bm.estimate_HMM_scale(100)
 
     # [4] 識別実験
@@ -190,13 +191,13 @@ if __name__ == '__main__':
     dice2_B = np.array([[0.9, 0.1], [0.6, 0.4], [0.1, 0.9]])
     dice2_rho = np.array([1.0, 0.0, 0.0])
     bm2 = BaumwelchAlgorithm(A2, B2, rho2)
-    bm2.set_output_symbole(dice2_A, dice2_B, dice2_rho, 10000)
+    bm2.set_output_symbole(dice2_A, dice2_B, dice2_rho, 1000)
     bm2.estimate_HMM_scale(100)
 
-    # 識別テスト
-
+    # 識別テスト (Foward)
+    print("識別テスト (Foward)")
     # W1 なら当たり
-    count = 0 # 誤判定数
+    count_fw = 0 # 誤判定数
     for i in range(100):
         dice = OutputSymbol(dice_A, dice_B, dice_rho)
         test_x, test_s = dice.generate_symbol(100)
@@ -214,7 +215,7 @@ if __name__ == '__main__':
             
         if np.log(fw1.Px) < np.log(fw2.Px):
             print("Judgment: W2")
-            count += 1
+            count_fw += 1
 
     # W2
     for i in range(100):
@@ -231,11 +232,57 @@ if __name__ == '__main__':
         
         if np.log(fw1.Px) > np.log(fw2.Px):
             print("Judgment: W1")
-            count += 1
+            count_fw += 1
             
         if np.log(fw1.Px) < np.log(fw2.Px):
             print("Judgment: W2")
 
+    # 識別テスト (Viterbi)
+    print("識別テスト (Viterbi)")
+    # W1 なら当たり
+    count_vi = 0 # 誤判定数
+    for i in range(100):
+        dice = OutputSymbol(dice_A, dice_B, dice_rho)
+        test_x, test_s = dice.generate_symbol(100)
+
+        vi1 = FowardAlgorithm(bm.A, bm.B, bm.rho, test_x)
+        vi1.calc_Px()
+        print("W1: {}".format(np.log(vi1.Px)))
+
+        vi2 = FowardAlgorithm(bm2.A, bm2.B, bm2.rho, test_x)
+        vi2.calc_Px()
+        print("W2: {}".format(np.log(vi2.Px)))
+        
+        if np.log(vi1.Px) > np.log(vi2.Px):
+            print("Judgment: W1")
+            
+        if np.log(vi1.Px) < np.log(vi2.Px):
+            print("Judgment: W2")
+            count_vi += 1
+
+    # W2
+    for i in range(100):
+        dice = OutputSymbol(dice2_A, dice2_B, dice2_rho)
+        test_x, test_s = dice.generate_symbol(100)
+
+        vi1 = FowardAlgorithm(bm.A, bm.B, bm.rho, test_x)
+        vi1.calc_Px()
+        print("W1: {}".format(np.log(vi1.Px)))
+
+        vi2 = FowardAlgorithm(bm2.A, bm2.B, bm2.rho, test_x)
+        vi2.calc_Px()
+        print("W2: {}".format(np.log(vi2.Px)))
+        
+        if np.log(vi1.Px) > np.log(vi2.Px):
+            print("Judgment: W1")
+            count_vi += 1
+            
+        if np.log(vi1.Px) < np.log(vi2.Px):
+            print("Judgment: W2")
+
     # 識別率
     print("================")
-    print("識別率: {}%".format((200 - count)/200 * 100))
+    print("Foward")
+    print("識別率: {}%".format((200 - count_fw)/200 * 100))
+    print("Viterbi")
+    print("識別率: {}%".format((200 - count_vi)/200 * 100))
